@@ -41,7 +41,7 @@ defmodule MovieMatch.Sessions do
   end
 
   def check_for_match(session_id, movie_id) do
-    participant_count = count_participants(session_id)
+  required_likes = max(count_participants(session_id), 2)
 
     liked_count =
       MovieVote
@@ -49,7 +49,7 @@ defmodule MovieMatch.Sessions do
       |> select([v], count(v.participant_id, :distinct))
       |> Repo.one()
 
-    participant_count > 0 and liked_count == participant_count
+    liked_count >= required_likes
   end
 
 end
