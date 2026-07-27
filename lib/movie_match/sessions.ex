@@ -3,7 +3,6 @@ defmodule MovieMatch.Sessions do
 
   alias MovieMatch.Repo
   alias MovieMatch.Sessions.Session
-  alias MovieMatch.Sessions.Participant
 
   def create_session(attrs \\ %{}) do
     %Session{}
@@ -25,5 +24,13 @@ defmodule MovieMatch.Sessions do
 
   def get_participant_by_id!(id) do
     Repo.get!(Participant, id)
+  end
+
+  alias MovieMatch.Sessions.MovieVote
+
+  def create_movie_vote(attrs) do
+    %MovieVote{}
+    |> MovieVote.changeset(attrs)
+    |> Repo.insert()
   end
 end

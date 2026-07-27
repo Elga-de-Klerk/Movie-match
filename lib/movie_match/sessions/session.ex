@@ -8,6 +8,7 @@ defmodule MovieMatch.Sessions.Session do
     field :selected_services, {:array, :string}, default: []
 
     has_many :participants, MovieMatch.Sessions.Participant
+    has_many :movie_votes, MovieMatch.Sessions.MovieVote
 
     timestamps(type: :utc_datetime)
   end

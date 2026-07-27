@@ -19,8 +19,14 @@ defmodule MovieMatchWeb.Router do
 
     live "/", HomeLive
     live "/session/new", SessionLive.Create
-    live "/session/:id", SessionLive.Lobby
-    live "/session/:id/match", SessionLive.Match
+
+    live_session :session_context,
+      on_mount: {MovieMatchWeb.Live.Hooks.SessionContext, :session_context} do
+
+      live "/session/:id", SessionLive.Lobby
+      live "/session/:id/match", SessionLive.Match
+
+    end
   end
 
   # Other scopes may use custom stacks.

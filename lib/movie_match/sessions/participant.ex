@@ -7,6 +7,8 @@ defmodule MovieMatch.Sessions.Participant do
     field :ready, :boolean, default: false
     field :host, :boolean, default: false
 
+    has_many :movie_votes, MovieMatch.Sessions.MovieVote
+
     belongs_to :session, MovieMatch.Sessions.Session,
       foreign_key: :session_id,
       references: :id,

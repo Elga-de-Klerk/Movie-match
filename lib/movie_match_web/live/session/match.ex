@@ -1,16 +1,19 @@
 defmodule MovieMatchWeb.SessionLive.Match do
   use MovieMatchWeb, :live_view
 
+  alias MovieMatch.Sessions
   alias MovieMatch.Movies.Provider
 
   import MovieMatchWeb.Components.Movie.MovieCover
   import MovieMatchWeb.Components.Movie.MovieInformation
 
-  def mount(%{"id" => _id}, _session, socket) do
+  def mount(%{"id" => id}, _session, socket) do
+    session = Sessions.get_session_by_id!(id)
     movies = Provider.discover()
 
     {:ok,
      socket
+     |> assign(:session, session)
      |> assign(:movies, movies)
      |> assign(:movie_index, 0)
      |> assign(:movie, Enum.at(movies, 0))
@@ -40,13 +43,12 @@ defmodule MovieMatchWeb.SessionLive.Match do
   end
 
   defp save_vote(socket, vote) do
-    IO.inspect(
-      %{
-        movie: socket.assigns.movie.title,
-        vote: vote
-      },
-      label: "Vote"
-    )
+    Sessions.create_movie_vote(%{
+      session_id: socket.assigns.session.id,
+      participant_id: socket.assigns.participant_id,
+      movie_id: socket.assigns.movie.id,
+      liked: vote == :like
+    })
 
     socket
   end

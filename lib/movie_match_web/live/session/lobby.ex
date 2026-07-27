@@ -18,47 +18,16 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
     {:ok,
      socket
      |> assign(:session, session)
-     |> assign(:name, "")
-     |> assign(:participant_id, nil)}
-  end
-
-  def handle_params(params, _uri, socket) do
-    participant_id =
-      if params["participant_id"] do
-        String.to_integer(params["participant_id"])
-      end
-
-    participant =
-      if participant_id do
-        Sessions.get_participant_by_id!(participant_id)
-      end
-
-    {:noreply,
-     socket
-     |> assign(:participant_id, participant_id)
-     |> assign(:name, participant && participant.name || "")}
-  end
-
-  def handle_event("update_name", %{"name" => name}, socket) do
-    {:noreply, assign(socket, :name, name)}
-  end
-
-  def handle_event("join_session", _params, socket) do
-    {:ok, participant} =
-      Sessions.add_participant(%{
-        name: socket.assigns.name,
-        session_id: socket.assigns.session.id
-      })
-
-    {:noreply,
-     socket
-     |> assign(:joined, true)
-     |> assign(:participant_id, participant.id)}
+     |> assign_new(:name, fn ->
+       if socket.assigns[:participant] do
+         socket.assigns.participant.name
+       else
+         ""
+       end
+     end)}
   end
 
   def handle_event("start_matching", _params, socket) do
-    # participant creation logic here
-
     {:noreply,
      push_navigate(
        socket,
