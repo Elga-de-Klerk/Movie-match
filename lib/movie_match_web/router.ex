@@ -19,6 +19,7 @@ defmodule MovieMatchWeb.Router do
 
     live "/", HomeLive
     live "/session/new", SessionLive.Create
+    live "/session/:id", SessionLive.Lobby
   end
 
   # Other scopes may use custom stacks.

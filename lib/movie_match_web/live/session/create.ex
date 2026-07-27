@@ -1,6 +1,8 @@
 defmodule MovieMatchWeb.SessionLive.Create do
   use MovieMatchWeb, :live_view
 
+  alias MovieMatch.Sessions
+
   import MovieMatchWeb.Components.ServiceCard
 
   def mount(_params, _session, socket) do
@@ -30,6 +32,25 @@ defmodule MovieMatchWeb.SessionLive.Create do
     {:noreply, assign(socket, :selected_services, selected_services)}
   end
 
+  def handle_event("create_session", _params, socket) do
+    {:ok, session} =
+      Sessions.create_session(%{
+        id: generate_session_id(),
+        selected_services: socket.assigns.selected_services
+      })
+
+    {:noreply,
+     push_navigate(socket,
+       to: "/session/#{session.id}"
+     )}
+  end
+
+  defp generate_session_id do
+    :crypto.strong_rand_bytes(6)
+    |> Base.encode32(case: :lower)
+    |> binary_part(0, 6)
+  end
+
   def render(assigns) do
     ~H"""
     <main class="min-h-screen bg-slate-950 text-white">
@@ -53,7 +74,15 @@ defmodule MovieMatchWeb.SessionLive.Create do
           </div>
 
           <button
-            class="mt-10 w-full rounded-xl bg-violet-600 px-6 py-3 font-semibold transition hover:bg-violet-500"
+            phx-click="create_session"
+            disabled={@selected_services == []}
+            class={[
+                "mt-10 w-full rounded-xl px-6 py-3 font-semibold transition",
+                if(@selected_services == [],
+                  do: "cursor-not-allowed bg-slate-700 text-slate-400",
+                  else: "bg-violet-600 hover:bg-violet-500"
+                )
+              ]}
           >
             Create Session
           </button>
