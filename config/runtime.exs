@@ -20,6 +20,9 @@ if System.get_env("PHX_SERVER") do
   config :movie_match, MovieMatchWeb.Endpoint, server: true
 end
 
+config :movie_match,
+    tmdb_api_key: System.get_env("TMDB_API_KEY")
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||

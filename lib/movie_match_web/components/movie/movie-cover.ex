@@ -21,7 +21,7 @@ defmodule MovieMatchWeb.Components.Movie.MovieCover do
         </h1>
 
         <div class="mt-3 flex flex-wrap gap-2 text-sm text-slate-400">
-          <span><%= @movie.year %></span>
+          <span><%= @movie.release_year %></span>
           <span>•</span>
           <span><%= Enum.join(@movie.genres, ", ") %></span>
           <span>•</span>

@@ -2,7 +2,7 @@ defmodule MovieMatchWeb.Components.Session.SessionHeader do
   use Phoenix.Component
 
   attr :session, :map, required: true
-  attr :isHost, :boolean, default: false
+  attr :is_host, :boolean, default: false
 
   def session_header(assigns) do
     ~H"""
