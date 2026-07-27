@@ -57,7 +57,13 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
   end
 
   def handle_event("start_matching", _params, socket) do
-    {:noreply, socket}
+    # participant creation logic here
+
+    {:noreply,
+     push_navigate(
+       socket,
+       to: "/session/#{socket.assigns.session.id}/match?participant_id=#{socket.assigns.participant_id}"
+     )}
   end
 
   def render(assigns) do
