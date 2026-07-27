@@ -2,6 +2,7 @@ defmodule MovieMatchWeb.Components.Session.ParticipantList do
   use Phoenix.Component
 
   attr :participants, :list, required: true
+  attr :current_participant_id, :string, default: nil
 
   def participant_list(assigns) do
     ~H"""
@@ -12,10 +13,24 @@ defmodule MovieMatchWeb.Components.Session.ParticipantList do
 
       <div class="mt-4 space-y-3">
         <%= for participant <- @participants do %>
-          <div class="flex items-center gap-3 rounded-xl bg-slate-800 px-4 py-3">
-            <span>
-              <%= participant.name %>
-            </span>
+          <div class="flex items-center justify-between rounded-xl bg-slate-800 px-4 py-3">
+            <div class="flex items-center gap-3">
+              <span>
+                <%= participant.name %>
+              </span>
+
+              <%= if participant.id == @current_participant_id do %>
+                <span class="text-sm text-slate-400">
+                  You
+                </span>
+              <% end %>
+            </div>
+
+            <%= if participant.host do %>
+              <span class="text-sm text-violet-400">
+                Host
+              </span>
+            <% end %>
           </div>
         <% end %>
       </div>

@@ -21,8 +21,23 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
      socket
      |> assign(:session, session)
      |> assign(:participants, Sessions.list_participants(id))
+     |> assign(:joined, false)
      |> assign(:name, "")
-     |> assign(:joined, false)}
+     |> assign(:participant_id, nil)}
+  end
+
+
+  def handle_params(params, _uri, socket) do
+    participant_id =
+      case params["participant_id"] do
+        nil -> nil
+        id -> String.to_integer(id)
+      end
+
+    {:noreply,
+     socket
+     |> assign(:joined, participant_id != nil)
+     |> assign(:participant_id, participant_id)}
   end
 
   def handle_event("update_name", %{"name" => name}, socket) do
@@ -73,7 +88,10 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
             <.join_form name={@name}/>
           <% end %>
 
-          <.participant_list participants={@participants}/>
+          <.participant_list
+            participants={@participants}
+            current_participant_id={@participant_id}
+          />
 
           <button
             class="mt-6 w-full rounded-xl bg-violet-600 px-6 py-3 font-semibold transition hover:bg-violet-500"

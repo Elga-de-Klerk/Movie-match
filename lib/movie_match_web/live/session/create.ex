@@ -45,7 +45,7 @@ defmodule MovieMatchWeb.SessionLive.Create do
         selected_services: socket.assigns.selected_services
       })
 
-    {:ok, _participant} =
+    {:ok, participant} =
       Sessions.add_participant(%{
         name: socket.assigns.name,
         session_id: session.id,
@@ -53,9 +53,10 @@ defmodule MovieMatchWeb.SessionLive.Create do
       })
 
     {:noreply,
-     push_navigate(socket,
-       to: "/session/#{session.id}"
-     )}
+       push_navigate(
+         socket,
+         to: "/session/#{session.id}?participant_id=#{participant.id}"
+       )}
   end
 
   defp generate_session_id do
