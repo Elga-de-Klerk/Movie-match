@@ -10,13 +10,14 @@ defmodule MovieMatchWeb.SessionLive.Match do
   def mount(%{"id" => id}, _session, socket) do
     session = Sessions.get_session_by_id!(id)
     movies = Provider.discover()
+    current = Enum.at(movies, 0)
 
     {:ok,
      socket
      |> assign(:session, session)
      |> assign(:movies, movies)
      |> assign(:movie_index, 0)
-     |> assign(:movie, Enum.at(movies, 0))
+     |> assign(:movie, current && Provider.enrich_with_runtime(current))
      |> assign(:next_movie, Enum.at(movies, 1))
      |> assign(:show_description, false)}
   end
@@ -59,7 +60,7 @@ defmodule MovieMatchWeb.SessionLive.Match do
 
     socket
     |> assign(:movie_index, index)
-    |> assign(:movie, movie)
+    |> assign(:movie, movie && Provider.enrich_with_runtime(movie))
     |> assign(:next_movie, Enum.at(socket.assigns.movies, index + 1))
     |> assign(:show_description, false)
   end

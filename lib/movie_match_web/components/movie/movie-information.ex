@@ -1,6 +1,8 @@
 defmodule MovieMatchWeb.Components.Movie.MovieInformation do
   use Phoenix.Component
 
+  import MovieMatchWeb.Components.Movie.MovieDetails
+
   attr :movie, :map, required: true
 
   def movie_information(assigns) do
@@ -11,13 +13,7 @@ defmodule MovieMatchWeb.Components.Movie.MovieInformation do
         <%= @movie.title %>
       </h1>
 
-      <div class="mt-3 flex flex-wrap gap-2 text-sm text-slate-400">
-        <span><%= @movie.release_year %></span>
-        <span>•</span>
-        <span><%= Enum.join(@movie.genres, ", ") %></span>
-        <span>•</span>
-        <span><%= @movie.runtime %></span>
-      </div>
+      <.movie_details movie={@movie} />
 
       <div class="mt-8 flex-1 overflow-y-auto text-slate-300 leading-relaxed">
         <%= @movie.overview %>

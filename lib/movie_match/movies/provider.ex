@@ -9,6 +9,10 @@ defmodule MovieMatch.Movies.Provider do
     |> Enum.map(&convert_movie(&1, genre_lookup))
   end
 
+  def enrich_with_runtime(%Movie{id: id} = movie) do
+      %{movie | runtime: Cache.movie_details(id)["runtime"]}
+  end
+
   defp convert_movie(movie, genre_lookup) do
     genre_names =
       movie["genre_ids"]

@@ -31,11 +31,17 @@ defmodule MovieMatch.Movies.Cache do
     end
   end
 
-  @impl true
-  def init(_) do
-    :ets.new(@table, [:named_table, :public, read_concurrency: true])
-    {:ok, %{}}
+  def movie_details(id) do
+    key = {:movie_details, id}
+
+    case :ets.lookup(@table, key) do
+      [{^key, details}] -> details
+      [] -> GenServer.call(__MODULE__, {:load_movie_details, id})
+    end
   end
+
+  @impl true
+  def init(_), do: {:ok, %{}} |> tap(fn _ -> :ets.new(@table, [:named_table, :public, read_concurrency: true]) end)
 
   @impl true
   def handle_call(:load_genres, _from, state) do
@@ -50,5 +56,12 @@ defmodule MovieMatch.Movies.Cache do
     expires_at = System.monotonic_time(:millisecond) + @popular_ttl_ms
     :ets.insert(@table, {:popular_movies, movies, expires_at})
     {:reply, movies, state}
+  end
+
+  @impl true
+  def handle_call({:load_movie_details, id}, _from, state) do
+    details = TMDB.movie_details(id)
+    :ets.insert(@table, {{:movie_details, id}, details})
+    {:reply, details, state}
   end
 end
