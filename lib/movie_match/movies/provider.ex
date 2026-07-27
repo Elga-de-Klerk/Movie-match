@@ -1,12 +1,19 @@
 defmodule MovieMatch.Movies.Provider do
   alias MovieMatch.Movies.Movie
   alias MovieMatch.Movies.Cache
+  alias MovieMatch.Movies.TMDB
 
-  def discover do
+  def discover(selected_services) do
     genre_lookup = Cache.genres()
+    provider_ids = TMDB.provider_ids_for(selected_services)
 
-    Cache.popular_movies()
-    |> Enum.map(&convert_movie(&1, genre_lookup))
+    movies =
+      case provider_ids do
+        [] -> Cache.popular_movies()
+        ids -> Cache.movies_for_providers(ids)
+      end
+
+    Enum.map(movies, &convert_movie(&1, genre_lookup))
   end
 
   def enrich_with_runtime(%Movie{id: id} = movie) do

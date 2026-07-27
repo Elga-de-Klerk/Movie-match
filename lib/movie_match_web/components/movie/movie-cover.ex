@@ -20,7 +20,7 @@ defmodule MovieMatchWeb.Components.Movie.MovieCover do
       </div>
 
       <div class="flex-1 px-6 pb-6">
-        <h1 class="text-3xl font-bold">
+        <h1 class="text-3xl font-bold line-clamp-1">
           <%= @movie.title %>
         </h1>
 

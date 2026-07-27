@@ -11,10 +11,10 @@ defmodule MovieMatchWeb.SessionLive.Match do
     session = Sessions.get_session_by_id!(id)
 
     if connected?(socket) do
-        Phoenix.PubSub.subscribe(MovieMatch.PubSub, "session:#{id}")
-      end
+      Phoenix.PubSub.subscribe(MovieMatch.PubSub, "session:#{id}")
+    end
 
-    movies = Provider.discover()
+    movies = Provider.discover(session.selected_services)
     current = Enum.at(movies, 0)
 
     {:ok,

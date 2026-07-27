@@ -13,7 +13,7 @@ defmodule MovieMatch.Movies.Cache do
   def genres do
     case :ets.lookup(@table, :genres) do
       [{:genres, genres}] -> genres
-      [] -> GenServer.call(__MODULE__, :load_genres)
+      [] -> GenServer.call(__MODULE__, :load_genres, 15_000)
     end
   end
 
@@ -23,11 +23,27 @@ defmodule MovieMatch.Movies.Cache do
         if System.monotonic_time(:millisecond) < expires_at do
           movies
         else
-          GenServer.call(__MODULE__, :load_popular_movies)
+          GenServer.call(__MODULE__, :load_popular_movies, 15_000)
         end
 
       [] ->
-        GenServer.call(__MODULE__, :load_popular_movies)
+        GenServer.call(__MODULE__, :load_popular_movies, 15_000)
+    end
+  end
+
+  def movies_for_providers(provider_ids) do
+    key = {:movies, Enum.sort(provider_ids)}
+
+    case :ets.lookup(@table, key) do
+      [{^key, movies, expires_at}] ->
+        if System.monotonic_time(:millisecond) < expires_at do
+          movies
+        else
+          GenServer.call(__MODULE__, {:load_movies, provider_ids, key}, 15_000)
+        end
+
+      [] ->
+        GenServer.call(__MODULE__, {:load_movies, provider_ids, key}, 15_000)
     end
   end
 
@@ -36,7 +52,7 @@ defmodule MovieMatch.Movies.Cache do
 
     case :ets.lookup(@table, key) do
       [{^key, details}] -> details
-      [] -> GenServer.call(__MODULE__, {:load_movie_details, id})
+      [] -> GenServer.call(__MODULE__, {:load_movie_details, id}, 15_000)
     end
   end
 
@@ -63,5 +79,13 @@ defmodule MovieMatch.Movies.Cache do
     details = TMDB.movie_details(id)
     :ets.insert(@table, {{:movie_details, id}, details})
     {:reply, details, state}
+  end
+
+  @impl true
+  def handle_call({:load_movies, provider_ids, key}, _from, state) do
+    movies = TMDB.discover_by_providers(provider_ids)
+    expires_at = System.monotonic_time(:millisecond) + @popular_ttl_ms
+    :ets.insert(@table, {key, movies, expires_at})
+    {:reply, movies, state}
   end
 end

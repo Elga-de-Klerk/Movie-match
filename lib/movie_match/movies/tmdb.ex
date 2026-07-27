@@ -1,6 +1,32 @@
 defmodule MovieMatch.Movies.TMDB do
   @base_url "https://api.themoviedb.org/3"
 
+  @provider_ids %{
+    "netflix" => 8,
+    "disney" => 337,
+    "prime" => 119,
+    "hbo" => 1899
+  }
+
+  def provider_ids_for(services) do
+    services
+    |> Enum.map(&Map.get(@provider_ids, &1))
+    |> Enum.reject(&is_nil/1)
+  end
+
+  def discover_by_providers(provider_ids, region \\ "NL") do
+    Req.get!(
+      "#{@base_url}/discover/movie",
+      params: [
+        api_key: api_key(),
+        language: "en-US",
+        watch_region: region,
+        with_watch_providers: Enum.join(provider_ids, "|"),
+        sort_by: "popularity.desc"
+      ]
+    ).body["results"]
+  end
+
   def popular_movies do
     Req.get!(
       "#{@base_url}/movie/popular",
