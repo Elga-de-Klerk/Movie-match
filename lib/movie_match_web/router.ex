@@ -18,6 +18,7 @@ defmodule MovieMatchWeb.Router do
     pipe_through :browser
 
     live "/", HomeLive
+    live "/session/new", SessionLive.Create
   end
 
   # Other scopes may use custom stacks.
