@@ -11,7 +11,9 @@ defmodule MovieMatchWeb.Components.Movie.MovieCover do
         <img
           src={@movie.poster}
           alt={@movie.title}
-          class="h-full rounded-2xl object-contain shadow-lg"
+          class="h-[28rem] rounded-2xl object-cover shadow-lg"
+          loading="eager"
+          fetchpriority="high"
         />
       </div>
 

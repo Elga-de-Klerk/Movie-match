@@ -13,7 +13,7 @@ defmodule MovieMatch.Movies.Provider do
       title: movie["title"],
       overview: movie["overview"],
       poster:
-        "https://image.tmdb.org/t/p/w500#{movie["poster_path"]}",
+        "https://image.tmdb.org/t/p/w342#{movie["poster_path"]}",
       release_year:
         movie["release_date"]
         |> String.slice(0, 4),
