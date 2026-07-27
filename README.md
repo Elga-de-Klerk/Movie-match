@@ -1,18 +1,33 @@
-# MovieMatch
+# 🎬 MovieMatch
 
-To start your Phoenix server:
+A movie discovery app that helps friends find something everyone wants to watch. 
+Create a session, invite your people, swipe through movies together, and let MovieMatch find a match. 🍿
 
-* Run `mix setup` to install and setup dependencies
-* Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+## 🗂️ What's in here
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+This is a Phoenix LiveView application — a little Elixir project built around real-time collaboration.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+- ⚡ [`lib/movie_match/`](./lib/movie_match) — the brains (Elixir, Ecto, PostgreSQL)
+- 🎨 [`lib/movie_match_web/`](./lib/movie_match_web) — the face (Phoenix LiveView, HEEx, Tailwind CSS)
 
-## Learn more
+## ✅ Before you start, you'll need
 
-* Official website: https://www.phoenixframework.org/
-* Guides: https://hexdocs.pm/phoenix/overview.html
-* Docs: https://hexdocs.pm/phoenix
-* Forum: https://elixirforum.com/c/phoenix-forum
-* Source: https://github.com/phoenixframework/phoenix
+- 💧 Elixir
+- 🐘 PostgreSQL
+- 🟢 Node.js (for frontend assets)
+- 🐳 Docker (optional, for running PostgreSQL)
+
+## 🚀 Quick start
+
+1. Start PostgreSQL
+2. Install dependencies and prepare the database: `mix setup`
+3. Start the development server: `mix phx.server`
+4. Open the app: `http://localhost:4000`. 
+
+Create a session, invite some friends, and find your next movie night 🎲🎥
+
+🧰 Built with
+- Backend: Elixir · Phoenix Framework 1.8.1 · Phoenix LiveView · Ecto
+- Database: PostgreSQL
+- Frontend: HEEx · Tailwind CSS
+- Movie data: TMDB + streaming availability APIs (planned)
