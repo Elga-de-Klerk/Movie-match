@@ -16,20 +16,26 @@ defmodule MovieMatchWeb.SessionLive.Create do
     {:ok,
      socket
      |> assign(:services, services)
-     |> assign(:selected_services, [])}
+     |> assign(:selected_services, [])
+     |> assign(:name, "")}
+  end
+
+  def handle_event("update_form", %{"name" => name}, socket) do
+    {:noreply, assign(socket, :name, name)}
   end
 
   def handle_event("toggle_service", %{"service" => service}, socket) do
-    selected_services = socket.assigns.selected_services
+    services = socket.assigns.selected_services
 
-    selected_services =
-      if service in selected_services do
-        List.delete(selected_services, service)
+    updated =
+      if service in services do
+        List.delete(services, service)
       else
-        [service | selected_services]
+        [service | services]
       end
 
-    {:noreply, assign(socket, :selected_services, selected_services)}
+    {:noreply,
+     assign(socket, :selected_services, updated)}
   end
 
   def handle_event("create_session", _params, socket) do
@@ -37,6 +43,13 @@ defmodule MovieMatchWeb.SessionLive.Create do
       Sessions.create_session(%{
         id: generate_session_id(),
         selected_services: socket.assigns.selected_services
+      })
+
+    {:ok, _participant} =
+      Sessions.add_participant(%{
+        name: socket.assigns.name,
+        session_id: session.id,
+        host: true
       })
 
     {:noreply,
@@ -60,11 +73,26 @@ defmodule MovieMatchWeb.SessionLive.Create do
             Create a movie session
           </h1>
 
-          <p class="mt-3 text-slate-400">
+          <div>
+            <p class="mt-10 text-slate-400">
+              Your name
+            </p>
+
+            <form phx-change="update_form">
+              <input
+                name="name"
+                value={@name}
+                placeholder="Your name"
+                class="mt-2 w-full rounded-xl bg-slate-900 px-4 py-3 text-white"
+              />
+            </form>
+          </div>
+
+          <p class="mt-10 text-slate-400">
             Select the streaming services you want to search.
           </p>
 
-          <div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div class="mt-2 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <%= for service <- @services do %>
               <.service_card
                 service={service}
@@ -75,10 +103,10 @@ defmodule MovieMatchWeb.SessionLive.Create do
 
           <button
             phx-click="create_session"
-            disabled={@selected_services == []}
+            disabled={@selected_services == [] or @name == ""}
             class={[
                 "mt-10 w-full rounded-xl px-6 py-3 font-semibold transition",
-                if(@selected_services == [],
+                if(@selected_services == [] or @name == "",
                   do: "cursor-not-allowed bg-slate-700 text-slate-400",
                   else: "bg-violet-600 hover:bg-violet-500"
                 )

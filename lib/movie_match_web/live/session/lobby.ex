@@ -48,6 +48,11 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
      |> assign(:joined, true)}
   end
 
+  def handle_event("toggle_ready", _params, socket) do
+    # temporary placeholder
+    {:noreply, socket}
+  end
+
   def handle_info({:participant_joined, _participant}, socket) do
     participants =
       Sessions.list_participants(socket.assigns.session.id)
