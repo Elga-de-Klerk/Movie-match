@@ -15,7 +15,8 @@ defmodule MovieMatch.Application do
       # Start a worker by calling: MovieMatch.Worker.start_link(arg)
       # {MovieMatch.Worker, arg},
       # Start to serve requests, typically the last entry
-      MovieMatchWeb.Endpoint
+      MovieMatchWeb.Endpoint,
+      MovieMatch.Movies.Cache
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
