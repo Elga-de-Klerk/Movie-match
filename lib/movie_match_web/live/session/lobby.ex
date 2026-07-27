@@ -27,11 +27,32 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
      end)}
   end
 
-  def handle_event("start_matching", _params, socket) do
-    {:noreply,
-     push_navigate(
-       socket,
-       to: "/session/#{socket.assigns.session.id}/match?participant_id=#{socket.assigns.participant_id}"
-     )}
+  def handle_event("update_name", %{"name" => name}, socket) do
+    {:noreply, assign(socket, :name, name)}
+  end
+
+  def handle_event("start_matching", %{"name" => name}, socket) do
+    case socket.assigns.participant_id do
+      nil ->
+        {:ok, participant} =
+          Sessions.add_participant(%{
+            name: name,
+            session_id: socket.assigns.session.id,
+            host: false
+          })
+
+        {:noreply,
+         push_navigate(
+           socket,
+           to: "/session/#{socket.assigns.session.id}/match?participant_id=#{participant.id}"
+         )}
+
+      participant_id ->
+        {:noreply,
+         push_navigate(
+           socket,
+           to: "/session/#{socket.assigns.session.id}/match?participant_id=#{participant_id}"
+         )}
+    end
   end
 end

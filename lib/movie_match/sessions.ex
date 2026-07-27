@@ -26,6 +26,12 @@ defmodule MovieMatch.Sessions do
     Repo.get!(Participant, id)
   end
 
+  def count_participants(session_id) do
+    Participant
+    |> where(session_id: ^session_id)
+    |> Repo.aggregate(:count)
+  end
+
   alias MovieMatch.Sessions.MovieVote
 
   def create_movie_vote(attrs) do
@@ -33,4 +39,17 @@ defmodule MovieMatch.Sessions do
     |> MovieVote.changeset(attrs)
     |> Repo.insert()
   end
+
+  def check_for_match(session_id, movie_id) do
+    participant_count = count_participants(session_id)
+
+    liked_count =
+      MovieVote
+      |> where(session_id: ^session_id, movie_id: ^movie_id, liked: true)
+      |> select([v], count(v.participant_id, :distinct))
+      |> Repo.one()
+
+    participant_count > 0 and liked_count == participant_count
+  end
+
 end

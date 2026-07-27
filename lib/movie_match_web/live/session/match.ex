@@ -9,6 +9,11 @@ defmodule MovieMatchWeb.SessionLive.Match do
 
   def mount(%{"id" => id}, _session, socket) do
     session = Sessions.get_session_by_id!(id)
+
+    if connected?(socket) do
+        Phoenix.PubSub.subscribe(MovieMatch.PubSub, "session:#{id}")
+      end
+
     movies = Provider.discover()
     current = Enum.at(movies, 0)
 
@@ -19,7 +24,8 @@ defmodule MovieMatchWeb.SessionLive.Match do
      |> assign(:movie_index, 0)
      |> assign(:movie, current && Provider.enrich_with_runtime(current))
      |> assign(:next_movie, Enum.at(movies, 1))
-     |> assign(:show_description, false)}
+     |> assign(:show_description, false)
+     |> assign(:matched_movie, nil)}
   end
 
   def handle_event("toggle_description", _params, socket) do
@@ -34,6 +40,10 @@ defmodule MovieMatchWeb.SessionLive.Match do
     end
   end
 
+  def handle_info({:match, movie}, socket) do
+    {:noreply, assign(socket, :matched_movie, movie)}
+  end
+
   defp handle_vote(vote, socket) do
     socket =
       socket
@@ -44,12 +54,22 @@ defmodule MovieMatchWeb.SessionLive.Match do
   end
 
   defp save_vote(socket, vote) do
+    movie = socket.assigns.movie
+
     Sessions.create_movie_vote(%{
       session_id: socket.assigns.session.id,
       participant_id: socket.assigns.participant_id,
-      movie_id: socket.assigns.movie.id,
+      movie_id: movie.id,
       liked: vote == :like
     })
+
+    if vote == :like and Sessions.check_for_match(socket.assigns.session.id, movie.id) do
+      Phoenix.PubSub.broadcast(
+        MovieMatch.PubSub,
+        "session:#{socket.assigns.session.id}",
+        {:match, movie}
+      )
+    end
 
     socket
   end

@@ -1,5 +1,4 @@
 defmodule MovieMatchWeb.Live.Hooks.SessionContext do
-  import Phoenix.LiveView
   import Phoenix.Component
 
   alias MovieMatch.Sessions
@@ -8,6 +7,9 @@ defmodule MovieMatchWeb.Live.Hooks.SessionContext do
     participant =
       case params["participant_id"] do
         nil ->
+          nil
+
+        "" ->
           nil
 
         id ->
