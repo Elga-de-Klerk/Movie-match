@@ -4,8 +4,6 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
   alias MovieMatch.Sessions
 
   import MovieMatchWeb.Components.Session.SessionHeader
-  import MovieMatchWeb.Components.Session.JoinForm
-  import MovieMatchWeb.Components.Session.ParticipantList
 
   def mount(%{"id" => id}, _session, socket) do
     session = Sessions.get_session_by_id!(id)
@@ -20,24 +18,25 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
     {:ok,
      socket
      |> assign(:session, session)
-     |> assign(:participants, Sessions.list_participants(id))
-     |> assign(:joined, false)
      |> assign(:name, "")
      |> assign(:participant_id, nil)}
   end
 
-
   def handle_params(params, _uri, socket) do
     participant_id =
-      case params["participant_id"] do
-        nil -> nil
-        id -> String.to_integer(id)
+      if params["participant_id"] do
+        String.to_integer(params["participant_id"])
+      end
+
+    participant =
+      if participant_id do
+        Sessions.get_participant_by_id!(participant_id)
       end
 
     {:noreply,
      socket
-     |> assign(:joined, participant_id != nil)
-     |> assign(:participant_id, participant_id)}
+     |> assign(:participant_id, participant_id)
+     |> assign(:name, participant && participant.name || "")}
   end
 
   def handle_event("update_name", %{"name" => name}, socket) do
@@ -51,57 +50,75 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
         session_id: socket.assigns.session.id
       })
 
-    Phoenix.PubSub.broadcast(
-      MovieMatch.PubSub,
-      "session:#{socket.assigns.session.id}",
-      {:participant_joined, participant}
-    )
-
     {:noreply,
      socket
-     |> assign(:participants, Sessions.list_participants(socket.assigns.session.id))
-     |> assign(:joined, true)}
+     |> assign(:joined, true)
+     |> assign(:participant_id, participant.id)}
   end
 
-  def handle_event("toggle_ready", _params, socket) do
-    # temporary placeholder
+  def handle_event("start_matching", _params, socket) do
     {:noreply, socket}
   end
 
-  def handle_info({:participant_joined, _participant}, socket) do
-    participants =
-      Sessions.list_participants(socket.assigns.session.id)
-
-    {:noreply,
-     assign(socket, :participants, participants)}
-  end
-
   def render(assigns) do
-    ~H"""
-    <main class="min-h-screen bg-slate-950 text-white">
-      <div class="mx-auto flex min-h-screen max-w-xl items-center px-6 py-12">
-        <div class="w-full">
+      ~H"""
+      <main class="min-h-screen bg-slate-950 text-white">
+        <div class="mx-auto flex min-h-screen max-w-xl items-center px-6 py-12">
+          <div class="w-full">
 
-          <.session_header session={@session}/>
+            <.session_header
+              session={@session}
+              is_host={@participant_id != nil}
+            />
 
-          <%= unless @joined do %>
-            <.join_form name={@name}/>
-          <% end %>
+            <form phx-submit="start_matching" class="mt-10">
+              <%= if @participant_id == nil do %>
+                <div class="rounded-2xl bg-slate-900 p-6">
+                  <h2 class="text-xl font-semibold">
+                    Join this session
+                  </h2>
 
-          <.participant_list
-            participants={@participants}
-            current_participant_id={@participant_id}
-          />
+                  <p class="mt-2 text-sm text-slate-400">
+                    Enter your name so your movie preferences can be matched with the group.
+                  </p>
 
-          <button
-            class="mt-6 w-full rounded-xl bg-violet-600 px-6 py-3 font-semibold transition hover:bg-violet-500"
-          >
-            Start Swiping
-          </button>
+                  <input
+                    name="name"
+                    value={@name}
+                    phx-change="update_name"
+                    placeholder="Your name"
+                    class="mt-6 w-full rounded-xl bg-slate-800 px-4 py-3 text-white placeholder:text-slate-500 outline-none ring-1 ring-slate-700 focus:ring-violet-500"
+                  />
+                </div>
+              <% else %>
+                <div class="rounded-2xl bg-slate-900 p-6">
+                  <h2 class="text-xl font-semibold">
+                    Ready to find a movie?
+                  </h2>
 
+                  <p class="mt-2 text-sm text-slate-400">
+                    Start swiping and we'll find the movies everyone agrees on.
+                  </p>
+                </div>
+              <% end %>
+
+              <button
+                @disabled={@name == ""}
+                class={[
+                    "mt-6 w-full rounded-xl px-6 py-3 font-semibold transition",
+                    if(@name == "",
+                      do: "cursor-not-allowed bg-slate-700 text-slate-400",
+                      else: "bg-violet-600 hover:bg-violet-500"
+                    )
+                  ]}
+              >
+                Start Matching
+              </button>
+            </form>
+
+          </div>
         </div>
-      </div>
-    </main>
-    """
+      </main>
+      """
   end
 end

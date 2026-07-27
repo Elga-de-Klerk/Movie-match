@@ -23,10 +23,7 @@ defmodule MovieMatch.Sessions do
     |> Repo.insert()
   end
 
-  def list_participants(session_id) do
-    from(p in Participant,
-      where: p.session_id == ^session_id
-    )
-    |> Repo.all()
+  def get_participant_by_id!(id) do
+    Repo.get!(Participant, id)
   end
 end
