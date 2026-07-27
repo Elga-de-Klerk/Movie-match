@@ -7,9 +7,15 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
   import MovieMatchWeb.Components.Session.JoinForm
   import MovieMatchWeb.Components.Session.ParticipantList
 
-
   def mount(%{"id" => id}, _session, socket) do
     session = Sessions.get_session_by_id!(id)
+
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(
+        MovieMatch.PubSub,
+        "session:#{id}"
+      )
+    end
 
     {:ok,
      socket
@@ -24,16 +30,30 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
   end
 
   def handle_event("join_session", _params, socket) do
-    {:ok, _participant} =
+    {:ok, participant} =
       Sessions.add_participant(%{
         name: socket.assigns.name,
         session_id: socket.assigns.session.id
       })
 
+    Phoenix.PubSub.broadcast(
+      MovieMatch.PubSub,
+      "session:#{socket.assigns.session.id}",
+      {:participant_joined, participant}
+    )
+
     {:noreply,
      socket
      |> assign(:participants, Sessions.list_participants(socket.assigns.session.id))
      |> assign(:joined, true)}
+  end
+
+  def handle_info({:participant_joined, _participant}, socket) do
+    participants =
+      Sessions.list_participants(socket.assigns.session.id)
+
+    {:noreply,
+     assign(socket, :participants, participants)}
   end
 
   def render(assigns) do
