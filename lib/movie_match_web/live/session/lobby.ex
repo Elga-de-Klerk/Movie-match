@@ -4,6 +4,7 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
   alias MovieMatch.Sessions
 
   import MovieMatchWeb.Components.Session.SessionHeader
+  import MovieMatchWeb.Components.Session.MoviePreferences
 
   def mount(%{"id" => id}, _session, socket) do
     session = Sessions.get_session_by_id!(id)
@@ -18,6 +19,10 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
     {:ok,
      socket
      |> assign(:session, session)
+     |> assign(:movie_preferences, %{
+       genres: ["Comedy", "Action"],
+       runtime: "Under 2 hours"
+     })
      |> assign_new(:name, fn ->
        if socket.assigns[:participant] do
          socket.assigns.participant.name

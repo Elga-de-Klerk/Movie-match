@@ -306,7 +306,7 @@ defmodule MovieMatchWeb.CoreComponents do
   end
 
   # --- App-specific components (added for MovieMatch specific) ---
-  attr :max_width, :string, default: "xl", values: ~w(md xl 4xl)
+  attr :max_width, :string, default: "xl", values: ~w(md xl 4xl 6xl)
   slot :inner_block, required: true
 
   def page(assigns) do

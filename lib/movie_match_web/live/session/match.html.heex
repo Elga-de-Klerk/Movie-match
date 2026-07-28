@@ -1,4 +1,10 @@
 <.page>
+    <.movie_preferences
+      variant={:filter}
+      expanded={@show_movie_preferences}
+      genres={@movie_preferences.genres}
+      runtime={@movie_preferences.runtime}
+    />
   <div
     phx-click="toggle_description"
     class="h-[38rem] cursor-pointer overflow-hidden rounded-2xl bg-slate-900 shadow-xl"

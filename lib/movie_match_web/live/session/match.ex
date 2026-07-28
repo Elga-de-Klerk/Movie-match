@@ -4,6 +4,7 @@ defmodule MovieMatchWeb.SessionLive.Match do
   alias MovieMatch.Sessions
   alias MovieMatch.Movies.Provider
 
+  import MovieMatchWeb.Components.Session.MoviePreferences
   import MovieMatchWeb.Components.Movie.MovieCover
   import MovieMatchWeb.Components.Movie.MovieInformation
 
@@ -20,12 +21,23 @@ defmodule MovieMatchWeb.SessionLive.Match do
     {:ok,
      socket
      |> assign(:session, session)
+     |> assign(:movie_preferences, %{
+       genres: ["Comedy", "Action"],
+       runtime: "Under 2 hours"
+     })
+     |> assign(:show_movie_preferences, false)
      |> assign(:movies, movies)
      |> assign(:movie_index, 0)
      |> assign(:movie, current && Provider.enrich_with_runtime(current))
      |> assign(:next_movie, Enum.at(movies, 1))
      |> assign(:show_description, false)
      |> assign(:matched_movie, nil)}
+  end
+
+  def handle_event("toggle_movie_preferences", _params, socket) do
+    {:noreply,
+     update(
+       socket, :show_movie_preferences, fn value -> !value end )}
   end
 
   def handle_event("toggle_description", _params, socket) do

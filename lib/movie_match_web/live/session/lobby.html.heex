@@ -25,6 +25,14 @@
       <% end %>
     </.panel>
 
+    <div class="mt-6">
+        <.movie_preferences
+          genres={@movie_preferences.genres}
+          runtime={@movie_preferences.runtime}
+          variant={:display}
+        />
+    </div>
+
     <.action_button type="submit" disabled={@name == ""} class="mt-6 w-full">
       Start Matching
     </.action_button>
