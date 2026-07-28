@@ -2,6 +2,7 @@ defmodule MovieMatchWeb.Components.Session.MoviePreferences do
   use MovieMatchWeb, :component
 
   attr :genres, :list, default: []
+  attr :genre_mode, :atom, default: :or, values: [:or, :and]
   attr :selected_genres, :list, default: []
   attr :variant, :atom, default: :display, values: [:display, :filter]
   attr :expanded, :boolean, default: false
@@ -10,12 +11,17 @@ defmodule MovieMatchWeb.Components.Session.MoviePreferences do
     ~H"""
     <%= case @variant do %>
       <% :display -> %>
-        <.display_preferences genres={@genres} selected_genres={@selected_genres} />
+        <.display_preferences
+          genres={@genres}
+          selected_genres={@selected_genres}
+          genre_mode={@genre_mode}
+        />
       <% :filter -> %>
         <.filter_preferences
           expanded={@expanded}
           genres={@genres}
           selected_genres={@selected_genres}
+          genre_mode={@genre_mode}
         />
     <% end %>
     """
@@ -30,7 +36,7 @@ defmodule MovieMatchWeb.Components.Session.MoviePreferences do
       </.subtext>
 
       <div class="mt-4">
-        <.genre_filter genres={@genres} selected_genres={@selected_genres} />
+        <.genre_filter genres={@genres} selected_genres={@selected_genres} genre_mode={@genre_mode} />
       </div>
     </.panel>
     """
@@ -54,7 +60,7 @@ defmodule MovieMatchWeb.Components.Session.MoviePreferences do
 
       <div :if={@expanded} class="absolute left-0 right-0 top-full z-50">
         <.panel class="bg-slate-950">
-          <.genre_filter genres={@genres} selected_genres={@selected_genres} />
+          <.genre_filter genres={@genres} selected_genres={@selected_genres} genre_mode={@genre_mode} />
         </.panel>
       </div>
     </div>
@@ -65,6 +71,14 @@ defmodule MovieMatchWeb.Components.Session.MoviePreferences do
     ~H"""
     <div>
       <p class="font-semibold">Genres</p>
+
+      <button
+        type="button"
+        phx-click="toggle_genre_mode"
+        class="text-sm font-semibold text-violet-400 hover:text-violet-300"
+      >
+        Match: <%= if @genre_mode == :and, do: "all", else: "any" %>
+      </button>
 
       <div class="mt-3 flex flex-wrap gap-2">
         <button

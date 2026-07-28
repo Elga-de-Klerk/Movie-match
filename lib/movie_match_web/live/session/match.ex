@@ -22,7 +22,18 @@ defmodule MovieMatchWeb.SessionLive.Match do
         genres -> String.split(genres, ",")
       end
 
-    movies = Provider.discover(session.selected_services, %{genres: initial_genres})
+    initial_genre_mode =
+      case params["genre_mode"] do
+        "and" -> :and
+        _ -> :or
+      end
+
+    movies =
+      Provider.discover(session.selected_services, %{
+        genres: initial_genres,
+        genre_mode: initial_genre_mode
+      })
+
     current = Enum.at(movies, 0)
 
     {:ok,
@@ -30,6 +41,7 @@ defmodule MovieMatchWeb.SessionLive.Match do
      |> assign(:session, session)
      |> assign(:movie_preferences, %{genres: socket.assigns.available_genres})
      |> assign(:selected_genres, initial_genres)
+     |> assign(:genre_mode, initial_genre_mode)
      |> assign(:show_movie_preferences, false)
      |> assign(:movies, movies)
      |> assign(:movie_index, 0)
@@ -43,6 +55,11 @@ defmodule MovieMatchWeb.SessionLive.Match do
     {:noreply,
      update(
        socket, :show_movie_preferences, fn value -> !value end )}
+  end
+
+  def handle_event("toggle_genre_mode", _params, socket) do
+    mode = if socket.assigns.genre_mode == :or, do: :and, else: :or
+    {:noreply, socket |> assign(:genre_mode, mode) |> refresh_movies()}
   end
 
   def handle_event("toggle_genre", %{"genre" => genre}, socket) do
@@ -79,7 +96,7 @@ defmodule MovieMatchWeb.SessionLive.Match do
   end
 
   defp refresh_movies(socket) do
-    filters = %{genres: socket.assigns.selected_genres}
+    filters = %{genres: socket.assigns.selected_genres, genre_mode: socket.assigns.genre_mode}
 
     movies = Provider.discover(socket.assigns.session.selected_services, filters)
 
@@ -89,7 +106,6 @@ defmodule MovieMatchWeb.SessionLive.Match do
     |> assign(:movie, Enum.at(movies, 0) && Provider.enrich_with_runtime(Enum.at(movies, 0)))
     |> assign(:next_movie, Enum.at(movies, 1))
   end
-
   defp handle_vote(vote, socket) do
     socket =
       socket

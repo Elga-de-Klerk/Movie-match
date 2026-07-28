@@ -20,6 +20,7 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
      socket
      |> assign(:session, session)
      |> assign(:movie_preferences, %{genres: socket.assigns.available_genres})
+     |> assign(:genre_mode, :or)
      |> assign(:selected_genres, [])
      |> assign_new(:name, fn ->
        if socket.assigns[:participant] do
@@ -40,6 +41,11 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
 
   def handle_event("update_name", %{"name" => name}, socket) do
     {:noreply, assign(socket, :name, name)}
+  end
+
+  def handle_event("toggle_genre_mode", _params, socket) do
+    mode = if socket.assigns.genre_mode == :or, do: :and, else: :or
+    {:noreply, assign(socket, :genre_mode, mode)}
   end
 
   def handle_event("toggle_genre", %{"genre" => genre}, socket) do
@@ -90,6 +96,6 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
   defp match_url(socket, participant_id) do
     genres = Enum.join(socket.assigns.selected_genres, ",")
 
-    "/session/#{socket.assigns.session.id}/match?participant_id=#{participant_id}&genres=#{URI.encode_www_form(genres)}"
+    "/session/#{socket.assigns.session.id}/match?participant_id=#{participant_id}&genres=#{URI.encode_www_form(genres)}&genre_mode=#{socket.assigns.genre_mode}"
   end
 end

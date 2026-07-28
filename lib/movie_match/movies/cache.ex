@@ -47,28 +47,20 @@ defmodule MovieMatch.Movies.Cache do
     end
   end
 
-  def movies_for_filters(provider_ids, genre_ids) do
-    key = {:movies, Enum.sort(provider_ids), Enum.sort(genre_ids)}
+  def movies_for_filters(provider_ids, genre_ids, genre_mode) do
+    key = {:movies, Enum.sort(provider_ids), Enum.sort(genre_ids), genre_mode}
 
     case :ets.lookup(@table, key) do
       [{^key, movies, expires_at}] ->
         if System.monotonic_time(:millisecond) < expires_at do
           movies
         else
-          GenServer.call(__MODULE__, {:load_filtered_movies, provider_ids, genre_ids, key}, 15_000)
+          GenServer.call(__MODULE__, {:load_filtered_movies, provider_ids, genre_ids, genre_mode, key}, 15_000)
         end
 
       [] ->
-        GenServer.call(__MODULE__, {:load_filtered_movies, provider_ids, genre_ids, key}, 15_000)
+        GenServer.call(__MODULE__, {:load_filtered_movies, provider_ids, genre_ids, genre_mode, key}, 15_000)
     end
-  end
-
-  @impl true
-  def handle_call({:load_filtered_movies, provider_ids, genre_ids, key}, _from, state) do
-    movies = TMDB.discover_by_providers(provider_ids, genre_ids)
-    expires_at = System.monotonic_time(:millisecond) + @popular_ttl_ms
-    :ets.insert(@table, {key, movies, expires_at})
-    {:reply, movies, state}
   end
 
   def movie_details(id) do
@@ -81,7 +73,10 @@ defmodule MovieMatch.Movies.Cache do
   end
 
   @impl true
-  def init(_), do: {:ok, %{}} |> tap(fn _ -> :ets.new(@table, [:named_table, :public, read_concurrency: true]) end)
+  def init(_) do
+    :ets.new(@table, [:named_table, :public, read_concurrency: true])
+    {:ok, %{}}
+  end
 
   @impl true
   def handle_call(:load_genres, _from, state) do
@@ -99,17 +94,25 @@ defmodule MovieMatch.Movies.Cache do
   end
 
   @impl true
-  def handle_call({:load_movie_details, id}, _from, state) do
-    details = TMDB.movie_details(id)
-    :ets.insert(@table, {{:movie_details, id}, details})
-    {:reply, details, state}
-  end
-
-  @impl true
   def handle_call({:load_movies, provider_ids, key}, _from, state) do
     movies = TMDB.discover_by_providers(provider_ids)
     expires_at = System.monotonic_time(:millisecond) + @popular_ttl_ms
     :ets.insert(@table, {key, movies, expires_at})
     {:reply, movies, state}
+  end
+
+  @impl true
+  def handle_call({:load_filtered_movies, provider_ids, genre_ids, genre_mode, key}, _from, state) do
+    movies = TMDB.discover_by_providers(provider_ids, genre_ids, genre_mode)
+    expires_at = System.monotonic_time(:millisecond) + @popular_ttl_ms
+    :ets.insert(@table, {key, movies, expires_at})
+    {:reply, movies, state}
+  end
+
+  @impl true
+  def handle_call({:load_movie_details, id}, _from, state) do
+    details = TMDB.movie_details(id)
+    :ets.insert(@table, {{:movie_details, id}, details})
+    {:reply, details, state}
   end
 end

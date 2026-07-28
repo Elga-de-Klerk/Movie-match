@@ -7,11 +7,12 @@ defmodule MovieMatch.Movies.Provider do
     genre_lookup = Cache.genres()
     provider_ids = TMDB.provider_ids_for(selected_services)
     genre_ids = genre_ids_for(filters[:genres] || [], genre_lookup)
+    genre_mode = filters[:genre_mode] || :or
 
     movies =
       case {provider_ids, genre_ids} do
         {[], []} -> Cache.popular_movies()
-        _ -> Cache.movies_for_filters(provider_ids, genre_ids)
+        _ -> Cache.movies_for_filters(provider_ids, genre_ids, genre_mode)
       end
 
     Enum.map(movies, &convert_movie(&1, genre_lookup))
@@ -50,20 +51,5 @@ defmodule MovieMatch.Movies.Provider do
       genres: genre_names,
       runtime: nil
     }
-  end
-
-  defp apply_filters(movies, filters) do
-    movies
-    |> filter_genres(filters[:genres])
-  end
-
-  defp filter_genres(movies, nil), do: movies
-  defp filter_genres(movies, []), do: movies
-  defp filter_genres(movies, selected_genres) do
-    Enum.filter(movies, fn movie ->
-      Enum.any?(movie.genres, fn genre ->
-        genre in selected_genres
-      end)
-    end)
   end
 end

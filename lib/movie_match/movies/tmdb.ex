@@ -14,7 +14,9 @@ defmodule MovieMatch.Movies.TMDB do
     |> Enum.reject(&is_nil/1)
   end
 
-  def discover_by_providers(provider_ids, genre_ids \\ [], region \\ "NL") do
+  def discover_by_providers(provider_ids, genre_ids \\ [], genre_mode \\ :or, region \\ "NL") do
+    joiner = if genre_mode == :and, do: ",", else: "|"
+
     base_params = [
       api_key: api_key(),
       language: "en-US",
@@ -24,14 +26,14 @@ defmodule MovieMatch.Movies.TMDB do
 
     params =
       base_params
-      |> put_if_present(:with_watch_providers, provider_ids)
-      |> put_if_present(:with_genres, genre_ids)
+      |> put_if_present(:with_watch_providers, provider_ids, "|")
+      |> put_if_present(:with_genres, genre_ids, joiner)
 
     Req.get!("#{@base_url}/discover/movie", params: params).body["results"]
   end
 
-  defp put_if_present(params, _key, []), do: params
-  defp put_if_present(params, key, ids), do: Keyword.put(params, key, Enum.join(ids, "|"))
+  defp put_if_present(params, _key, [], _joiner), do: params
+  defp put_if_present(params, key, ids, joiner), do: Keyword.put(params, key, Enum.join(ids, joiner))
 
   def popular_movies do
     Req.get!(
