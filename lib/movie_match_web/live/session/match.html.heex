@@ -1,57 +1,41 @@
-<main class="min-h-screen bg-slate-950 text-white">
-  <div class="mx-auto flex min-h-screen max-w-xl items-center px-6 py-12">
-    <div class="w-full">
-        <div
-          phx-click="toggle_description"
-          class="h-[38rem] cursor-pointer overflow-hidden rounded-3xl bg-slate-900 shadow-xl"
-        >
-          <%= if @show_description do %>
-            <.movie_information movie={@movie}/>
-          <% else %>
-            <.movie_cover movie={@movie}/>
-          <% end %>
-        </div>
-
-        <div class="mt-6 flex gap-4">
-            <button
-              phx-click="vote"
-              phx-value-vote="dislike"
-              class="flex-1 rounded-xl border border-slate-700 px-4 py-3"
-            >
-              Dislike
-            </button>
-
-            <button
-              phx-click="vote"
-              phx-value-vote="like"
-              class="flex-1 rounded-xl bg-violet-600 px-4 py-3"
-            >
-              Like
-            </button>
-        </div>
-
-    </div>
-  </div>
-  <%= if @matched_movie do %>
-    <div class="fixed inset-0 flex items-center justify-center bg-black/70">
-      <div class="rounded-2xl bg-slate-900 p-8 text-center">
-        <h2 class="text-2xl font-bold">It's a match! 🎉</h2>
-        <p class="mt-2 text-slate-300"><%= @matched_movie.title %></p>
-        <button phx-click="dismiss_match" class="mt-4 rounded-xl bg-violet-600 px-4 py-2">
-          Keep swiping
-        </button>
-      </div>
-    </div>
-  <% end %>
-
-  <div class="hidden">
-    <%= for movie <- Enum.slice(@movies, @movie_index + 1, 3) do %>
-      <img
-        src={movie.poster}
-        alt=""
-        loading="eager"
-        fetchpriority="high"
-      />
+<.page>
+  <div
+    phx-click="toggle_description"
+    class="h-[38rem] cursor-pointer overflow-hidden rounded-2xl bg-slate-900 shadow-xl"
+  >
+    <%= if @show_description do %>
+      <.movie_information movie={@movie} />
+    <% else %>
+      <.movie_cover movie={@movie} />
     <% end %>
   </div>
-</main>
+
+  <div class="mt-6 flex gap-4">
+    <.action_button variant="secondary" phx-click="vote" phx-value-vote="dislike" class="flex-1">
+      Dislike
+    </.action_button>
+    <.action_button phx-click="vote" phx-value-vote="like" class="flex-1">
+      Like
+    </.action_button>
+  </div>
+
+    <div class="hidden">
+        <%= for movie <- Enum.slice(@movies, @movie_index + 1, 3) do %>
+          <img src={movie.poster} alt="" loading="eager" fetchpriority="high" />
+        <% end %>
+    </div>
+
+    <%= if @matched_movie do %>
+      <div class="fixed inset-0 flex items-center justify-center bg-black/70">
+        <.panel class="text-center">
+          <.heading>It's a match! 🎉</.heading>
+          <.subtext class="mt-2 text-slate-300">
+            <%= @matched_movie.title %>
+          </.subtext>
+          <.action_button phx-click="dismiss_match" class="mt-4">
+            Keep swiping
+          </.action_button>
+        </.panel>
+      </div>
+<% end %>
+</.page>

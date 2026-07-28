@@ -1,5 +1,5 @@
 defmodule MovieMatchWeb.Components.Movie.MovieInformation do
-  use Phoenix.Component
+  use MovieMatchWeb, :component
 
   import MovieMatchWeb.Components.Movie.MovieDetails
 
@@ -9,9 +9,9 @@ defmodule MovieMatchWeb.Components.Movie.MovieInformation do
     ~H"""
     <div class="flex h-full flex-col bg-slate-900 p-8">
 
-      <h1 class="text-3xl font-bold">
+      <.heading>
         <%= @movie.title %>
-      </h1>
+      </.heading>
 
       <.movie_details movie={@movie} />
 
@@ -19,9 +19,7 @@ defmodule MovieMatchWeb.Components.Movie.MovieInformation do
         <%= @movie.overview %>
       </div>
 
-      <p class="mt-4 text-sm text-slate-500">
-        Click for poster
-      </p>
+      <.caption>Click for poster</.caption>
 
     </div>
     """

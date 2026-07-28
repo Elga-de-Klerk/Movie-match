@@ -1,5 +1,5 @@
 defmodule MovieMatchWeb.Components.Movie.MovieDetails do
-  use Phoenix.Component
+  use MovieMatchWeb, :component
 
   import MovieMatchWeb.Components.Movie.Formatting
 

@@ -1,44 +1,9 @@
 defmodule MovieMatchWeb.CoreComponents do
-  @moduledoc """
-  Provides core UI components.
-
-  At first glance, this module may seem daunting, but its goal is to provide
-  core building blocks for your application, such as tables, forms, and
-  inputs. The components consist mostly of markup and are well-documented
-  with doc strings and declarative assigns. You may customize and style
-  them in any way you want, based on your application growth and needs.
-
-  The foundation for styling is Tailwind CSS, a utility-first CSS framework,
-  augmented with daisyUI, a Tailwind CSS plugin that provides UI components
-  and themes. Here are useful references:
-
-    * [daisyUI](https://daisyui.com/docs/intro/) - a good place to get
-      started and see the available components.
-
-    * [Tailwind CSS](https://tailwindcss.com) - the foundational framework
-      we build on. You will use it for layout, sizing, flexbox, grid, and
-      spacing.
-
-    * [Heroicons](https://heroicons.com) - see `icon/1` for usage.
-
-    * [Phoenix.Component](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html) -
-      the component system used by Phoenix. Some components, such as `<.link>`
-      and `<.form>`, are defined there.
-
-  """
   use Phoenix.Component
   use Gettext, backend: MovieMatchWeb.Gettext
 
   alias Phoenix.LiveView.JS
 
-  @doc """
-  Renders flash notices.
-
-  ## Examples
-
-      <.flash kind={:info} flash={@flash} />
-      <.flash kind={:info} phx-mounted={show("#flash")}>Welcome Back!</.flash>
-  """
   attr :id, :string, doc: "the optional id of flash container"
   attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
   attr :title, :string, default: nil
@@ -49,7 +14,6 @@ defmodule MovieMatchWeb.CoreComponents do
 
   def flash(assigns) do
     assigns = assign_new(assigns, :id, fn -> "flash-#{assigns.kind}" end)
-
     ~H"""
     <div
       :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
@@ -79,15 +43,6 @@ defmodule MovieMatchWeb.CoreComponents do
     """
   end
 
-  @doc """
-  Renders a button with navigation support.
-
-  ## Examples
-
-      <.button>Send!</.button>
-      <.button phx-click="go" variant="primary">Send!</.button>
-      <.button navigate={~p"/"}>Home</.button>
-  """
   attr :rest, :global, include: ~w(href navigate patch method download name value disabled)
   attr :class, :string
   attr :variant, :string, values: ~w(primary)
@@ -116,32 +71,6 @@ defmodule MovieMatchWeb.CoreComponents do
     end
   end
 
-  @doc """
-  Renders an input with label and error messages.
-
-  A `Phoenix.HTML.FormField` may be passed as argument,
-  which is used to retrieve the input name, id, and values.
-  Otherwise all attributes may be passed explicitly.
-
-  ## Types
-
-  This function accepts all HTML input types, considering that:
-
-    * You may also set `type="select"` to render a `<select>` tag
-
-    * `type="checkbox"` is used exclusively to render boolean values
-
-    * For live file uploads, see `Phoenix.Component.live_file_input/1`
-
-  See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input
-  for more information. Unsupported types, such as hidden and radio,
-  are best written directly in your templates.
-
-  ## Examples
-
-      <.input field={@form[:email]} type="email" />
-      <.input name="my-input" errors={["oh no!"]} />
-  """
   attr :id, :any, default: nil
   attr :name, :any
   attr :label, :string, default: nil
@@ -183,7 +112,6 @@ defmodule MovieMatchWeb.CoreComponents do
       assign_new(assigns, :checked, fn ->
         Phoenix.HTML.Form.normalize_value("checkbox", assigns[:value])
       end)
-
     ~H"""
     <div class="fieldset mb-2">
       <label>
@@ -269,7 +197,6 @@ defmodule MovieMatchWeb.CoreComponents do
     """
   end
 
-  # Helper used by inputs to generate form errors
   defp error(assigns) do
     ~H"""
     <p class="mt-1.5 flex gap-2 items-center text-sm text-error">
@@ -279,9 +206,6 @@ defmodule MovieMatchWeb.CoreComponents do
     """
   end
 
-  @doc """
-  Renders a header with title.
-  """
   slot :inner_block, required: true
   slot :subtitle
   slot :actions
@@ -302,16 +226,6 @@ defmodule MovieMatchWeb.CoreComponents do
     """
   end
 
-  @doc """
-  Renders a table with generic styling.
-
-  ## Examples
-
-      <.table id="users" rows={@users}>
-        <:col :let={user} label="id">{user.id}</:col>
-        <:col :let={user} label="username">{user.username}</:col>
-      </.table>
-  """
   attr :id, :string, required: true
   attr :rows, :list, required: true
   attr :row_id, :any, default: nil, doc: "the function for generating the row id"
@@ -365,16 +279,6 @@ defmodule MovieMatchWeb.CoreComponents do
     """
   end
 
-  @doc """
-  Renders a data list.
-
-  ## Examples
-
-      <.list>
-        <:item title="Title">{@post.title}</:item>
-        <:item title="Views">{@post.views}</:item>
-      </.list>
-  """
   slot :item, required: true do
     attr :title, :string, required: true
   end
@@ -392,24 +296,6 @@ defmodule MovieMatchWeb.CoreComponents do
     """
   end
 
-  @doc """
-  Renders a [Heroicon](https://heroicons.com).
-
-  Heroicons come in three styles – outline, solid, and mini.
-  By default, the outline style is used, but solid and mini may
-  be applied by using the `-solid` and `-mini` suffix.
-
-  You can customize the size and colors of the icons by setting
-  width, height, and background color classes.
-
-  Icons are extracted from the `deps/heroicons` directory and bundled within
-  your compiled app.css by the plugin in `assets/vendor/heroicons.js`.
-
-  ## Examples
-
-      <.icon name="hero-x-mark" />
-      <.icon name="hero-arrow-path" class="ml-1 size-3 motion-safe:animate-spin" />
-  """
   attr :name, :string, required: true
   attr :class, :string, default: "size-4"
 
@@ -419,7 +305,129 @@ defmodule MovieMatchWeb.CoreComponents do
     """
   end
 
-  ## JS Commands
+  # --- App-specific components (added for MovieMatch specific) ---
+  attr :max_width, :string, default: "xl", values: ~w(md xl 4xl)
+  slot :inner_block, required: true
+
+  def page(assigns) do
+    ~H"""
+    <main class="min-h-screen bg-slate-950 text-white">
+      <div class={["mx-auto flex min-h-screen items-center px-6 py-12", max_width_class(@max_width)]}>
+        <div class="w-full">
+          {render_slot(@inner_block)}
+        </div>
+      </div>
+    </main>
+    """
+  end
+
+  defp max_width_class("md"), do: "max-w-md"
+  defp max_width_class("xl"), do: "max-w-xl"
+  defp max_width_class("4xl"), do: "max-w-4xl"
+  defp max_width_class("6xl"), do: "max-w-6xl"
+
+  attr :class, :string, default: nil
+  slot :inner_block, required: true
+
+  def panel(assigns) do
+    ~H"""
+    <div class={["rounded-2xl bg-slate-900 p-6", @class]}>
+      {render_slot(@inner_block)}
+    </div>
+    """
+  end
+
+  attr :class, :string, default: nil
+  slot :inner_block, required: true
+
+  def heading(assigns) do
+    ~H"""
+    <h1 class={["text-3xl font-bold", @class]}>
+      {render_slot(@inner_block)}
+    </h1>
+    """
+  end
+
+  slot :inner_block, required: true
+  attr :class, :string, default: nil
+
+  def subtext(assigns) do
+    ~H"""
+    <p class={["text-sm text-slate-400", @class]}>
+      {render_slot(@inner_block)}
+    </p>
+    """
+  end
+
+  slot :inner_block, required: true
+
+  def caption(assigns) do
+    ~H"""
+    <p class="mt-4 text-sm text-slate-500">
+      {render_slot(@inner_block)}
+    </p>
+    """
+  end
+
+  attr :variant, :string, default: "primary", values: ~w(primary secondary)
+  attr :disabled, :boolean, default: false
+  attr :class, :string, default: nil
+  attr :rest, :global, include: ~w(type form phx-click phx-value-vote href navigate patch)
+  slot :inner_block, required: true
+
+  def action_button(%{rest: rest} = assigns) do
+    base_class = ["rounded-xl px-6 py-3 font-semibold transition text-center", action_variant_class(assigns.variant), assigns.class]
+
+    if rest[:href] || rest[:navigate] || rest[:patch] do
+      assigns = assign(assigns, :class, base_class)
+      ~H"""
+      <.link class={@class} {@rest}>
+        {render_slot(@inner_block)}
+      </.link>
+      """
+    else
+      assigns = assign(assigns, :class, base_class)
+      ~H"""
+      <button disabled={@disabled} class={@class} {@rest}>
+        {render_slot(@inner_block)}
+      </button>
+      """
+    end
+  end
+
+  defp action_variant_class("primary"),
+    do:
+      "bg-violet-600 text-white hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 disabled:hover:bg-slate-700"
+
+  defp action_variant_class("secondary"),
+    do: "border border-slate-700 text-white hover:bg-slate-800"
+
+  attr :name, :string, required: true
+  attr :value, :string, default: ""
+  attr :label, :string, default: nil
+  attr :class, :string, default: nil
+  attr :rest, :global, include: ~w(placeholder autocomplete id type phx-change)
+
+  def text_input(assigns) do
+    ~H"""
+    <div>
+      <label :if={@label} for={@name} class="mb-2 block text-sm font-medium text-slate-300">
+        {@label}
+      </label>
+      <input
+        name={@name}
+        value={@value}
+        class={[
+          "w-full rounded-xl bg-slate-800 px-4 py-3 text-white placeholder:text-slate-500 outline-none ring-1 ring-slate-700 focus:ring-violet-500",
+          @class
+        ]}
+        {@rest}
+      />
+    </div>
+    """
+  end
+
+  # --- end app-specific components ---
 
   def show(js \\ %JS{}, selector) do
     JS.show(js,
@@ -442,20 +450,7 @@ defmodule MovieMatchWeb.CoreComponents do
     )
   end
 
-  @doc """
-  Translates an error message using gettext.
-  """
   def translate_error({msg, opts}) do
-    # When using gettext, we typically pass the strings we want
-    # to translate as a static argument:
-    #
-    #     # Translate the number of files with plural rules
-    #     dngettext("errors", "1 file", "%{count} files", count)
-    #
-    # However the error messages in our forms and APIs are generated
-    # dynamically, so we need to translate them by calling Gettext
-    # with our gettext backend as first argument. Translations are
-    # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
       Gettext.dngettext(MovieMatchWeb.Gettext, "errors", msg, msg, count, opts)
     else
@@ -463,9 +458,6 @@ defmodule MovieMatchWeb.CoreComponents do
     end
   end
 
-  @doc """
-  Translates the errors for a field from a keyword list of errors.
-  """
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end

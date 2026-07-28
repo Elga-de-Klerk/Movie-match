@@ -1,57 +1,24 @@
-<div class="flex min-h-screen items-center justify-center bg-zinc-950 px-6">
-  <div class="w-full max-w-md rounded-3xl border border-zinc-800 bg-zinc-900 p-8 shadow-2xl">
+<.page max_width="md">
+  <.panel>
+    <.heading>Join a session</.heading>
+    <.subtext class="mt-2">Enter the session code shared by your host.</.subtext>
 
-    <h1 class="text-3xl font-bold text-white">
-      Join a session
-    </h1>
+    <form phx-submit="join" class="mt-6 space-y-6">
+      <.text_input
+        name="code"
+        label="Session code"
+        value={@code}
+        phx-change="update_code"
+        placeholder="ABC123"
+        autocomplete="off"
+        class="text-center text-2xl font-bold uppercase tracking-[0.4em]"
+      />
 
-    <p class="mt-3 text-zinc-400">
-      Enter the session code shared by your host.
-    </p>
+      <p :if={@error} class="text-sm text-red-400"><%= @error %></p>
 
-    <form phx-submit="join" class="mt-8 space-y-6">
-
-      <div>
-        <label
-          for="code"
-          class="mb-2 block text-sm font-medium text-zinc-300"
-        >
-          Session code
-        </label>
-
-        <input
-          id="code"
-          name="code"
-          type="text"
-          value={@code}
-          phx-change="update_code"
-          placeholder="ABC123"
-          autocomplete="off"
-          class="w-full rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-4 text-center text-2xl font-bold uppercase tracking-[0.4em] text-white placeholder:text-zinc-500 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
-        />
-      </div>
-
-      <%= if @error do %>
-        <p class="mt-2 text-sm text-red-400">
-          <%= @error %>
-        </p>
-      <% end %>
-
-      <button
-        disabled={@code == ""}
-        type="submit"
-        class={[
-            "mt-2 w-full rounded-xl px-6 py-3 font-semibold transition",
-            if(@code == "",
-              do: "cursor-not-allowed bg-slate-700 text-slate-400",
-              else: "bg-violet-600 hover:bg-violet-500"
-            )
-        ]}
-      >
+      <.action_button type="submit" disabled={@code == ""} class="w-full">
         Join Session
-      </button>
-
+      </.action_button>
     </form>
-
-  </div>
-</div>
+  </.panel>
+</.page>
