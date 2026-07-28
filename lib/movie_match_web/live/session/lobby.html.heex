@@ -1,5 +1,8 @@
 <.page>
-  <.session_header session={@session} is_host={@participant_id != nil} />
+  <.session_header
+    session={@session}
+    is_host={@participant_id != nil}
+    copied={@copied} />
 
   <form phx-submit="start_matching" class="mt-10">
     <.panel>
@@ -13,8 +16,7 @@
           value={@name}
           phx-change="update_name"
           placeholder="Your name"
-          class="mt-6"
-        />
+          class="mt-6" />
       <% else %>
         <.heading>Ready to find a movie?</.heading>
         <.subtext class="mt-2">

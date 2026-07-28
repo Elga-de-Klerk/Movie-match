@@ -24,7 +24,15 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
        else
          ""
        end
-     end)}
+     end)
+     |> assign(:copied, false)}
+  end
+
+  def handle_event("copy_code", %{"code" => code}, socket) do
+    {:noreply,
+     socket
+     |> assign(:copied, true)
+     |> push_event("copy_to_clipboard", %{text: code})}
   end
 
   def handle_event("update_name", %{"name" => name}, socket) do
