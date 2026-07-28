@@ -27,9 +27,11 @@
 
     <div class="mt-6">
         <.movie_preferences
+          variant={:display}
           genres={@movie_preferences.genres}
           runtime={@movie_preferences.runtime}
-          variant={:display}
+          selected_genres={@selected_genres}
+          selected_runtime={@selected_runtime}
         />
     </div>
 

@@ -23,6 +23,8 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
        genres: ["Comedy", "Action"],
        runtime: "Under 2 hours"
      })
+     |> assign(:selected_genres, [])
+     |> assign(:selected_runtime, "medium")
      |> assign_new(:name, fn ->
        if socket.assigns[:participant] do
          socket.assigns.participant.name
@@ -43,6 +45,23 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
   def handle_event("update_name", %{"name" => name}, socket) do
     {:noreply, assign(socket, :name, name)}
   end
+
+  def handle_event("toggle_genre", %{"genre" => genre}, socket) do
+      selected =
+        if genre in socket.assigns.selected_genres do
+          List.delete(socket.assigns.selected_genres, genre)
+        else
+          [genre | socket.assigns.selected_genres]
+        end
+
+      {:noreply,
+       assign(socket, :selected_genres, selected)}
+    end
+
+    def handle_event("set_runtime", %{"runtime" => runtime}, socket) do
+      {:noreply,
+       assign(socket, :selected_runtime, runtime)}
+    end
 
   def handle_event("start_matching", %{"name" => name}, socket) do
     case socket.assigns.participant_id do

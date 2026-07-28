@@ -25,6 +25,8 @@ defmodule MovieMatchWeb.SessionLive.Match do
        genres: ["Comedy", "Action"],
        runtime: "Under 2 hours"
      })
+     |> assign(:selected_genres, [])
+     |> assign(:selected_runtime, "medium")
      |> assign(:show_movie_preferences, false)
      |> assign(:movies, movies)
      |> assign(:movie_index, 0)
@@ -38,6 +40,23 @@ defmodule MovieMatchWeb.SessionLive.Match do
     {:noreply,
      update(
        socket, :show_movie_preferences, fn value -> !value end )}
+  end
+
+  def handle_event("toggle_genre", %{"genre" => genre}, socket) do
+    selected =
+      if genre in socket.assigns.selected_genres do
+        List.delete(socket.assigns.selected_genres, genre)
+      else
+        [genre | socket.assigns.selected_genres]
+      end
+
+    {:noreply,
+     assign(socket, :selected_genres, selected)}
+  end
+
+  def handle_event("set_runtime", %{"runtime" => runtime}, socket) do
+    {:noreply,
+     assign(socket, :selected_runtime, runtime)}
   end
 
   def handle_event("toggle_description", _params, socket) do
