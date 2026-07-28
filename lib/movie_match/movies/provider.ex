@@ -6,16 +6,23 @@ defmodule MovieMatch.Movies.Provider do
   def discover(selected_services, filters \\ %{}) do
     genre_lookup = Cache.genres()
     provider_ids = TMDB.provider_ids_for(selected_services)
+    genre_ids = genre_ids_for(filters[:genres] || [], genre_lookup)
 
     movies =
-      case provider_ids do
-        [] -> Cache.popular_movies()
-        ids -> Cache.movies_for_providers(ids)
+      case {provider_ids, genre_ids} do
+        {[], []} -> Cache.popular_movies()
+        _ -> Cache.movies_for_filters(provider_ids, genre_ids)
       end
 
-    movies
-     |> Enum.map(&convert_movie(&1, genre_lookup))
-     |> apply_filters(filters)
+    Enum.map(movies, &convert_movie(&1, genre_lookup))
+  end
+
+  defp genre_ids_for(genre_names, genre_lookup) do
+    name_to_id = Map.new(genre_lookup, fn {id, name} -> {name, id} end)
+
+    genre_names
+    |> Enum.map(&Map.get(name_to_id, &1))
+    |> Enum.reject(&is_nil/1)
   end
 
   def enrich_with_runtime(%Movie{id: id} = movie) do

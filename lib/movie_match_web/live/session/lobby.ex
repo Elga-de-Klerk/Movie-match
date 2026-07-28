@@ -69,14 +69,14 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
         {:noreply,
          push_navigate(
            socket,
-           to: "/session/#{socket.assigns.session.id}/match?participant_id=#{participant.id}"
+           to: match_url(socket, participant.id)
          )}
 
       participant_id ->
         {:noreply,
          push_navigate(
            socket,
-           to: "/session/#{socket.assigns.session.id}/match?participant_id=#{participant_id}"
+           to: match_url(socket, participant_id)
          )}
     end
   end
@@ -85,7 +85,13 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
     {:noreply,
      push_navigate(
        socket,
-       to: "/session/#{socket.assigns.session.id}/match?participant_id=#{socket.assigns.participant_id}"
+       to: match_url(socket, socket.assigns.participant_id)
      )}
+  end
+
+  defp match_url(socket, participant_id) do
+    genres = Enum.join(socket.assigns.selected_genres, ",")
+
+    "/session/#{socket.assigns.session.id}/match?participant_id=#{participant_id}&genres=#{URI.encode_www_form(genres)}"
   end
 end

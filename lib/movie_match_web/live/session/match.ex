@@ -8,23 +8,28 @@ defmodule MovieMatchWeb.SessionLive.Match do
   import MovieMatchWeb.Components.Movie.MovieCover
   import MovieMatchWeb.Components.Movie.MovieInformation
 
-  def mount(%{"id" => id}, _session, socket) do
+  def mount(%{"id" => id} = params, _session, socket) do
     session = Sessions.get_session_by_id!(id)
 
     if connected?(socket) do
       Phoenix.PubSub.subscribe(MovieMatch.PubSub, "session:#{id}")
     end
 
-    movies = Provider.discover(session.selected_services)
+    initial_genres =
+      case params["genres"] do
+        nil -> []
+        "" -> []
+        genres -> String.split(genres, ",")
+      end
+
+    movies = Provider.discover(session.selected_services, %{genres: initial_genres})
     current = Enum.at(movies, 0)
 
     {:ok,
      socket
      |> assign(:session, session)
-     |> assign(:movie_preferences, %{
-       genres: ["Comedy", "Action"]
-     })
-     |> assign(:selected_genres, [])
+     |> assign(:movie_preferences, %{genres: ["Comedy", "Action"]})
+     |> assign(:selected_genres, initial_genres)
      |> assign(:show_movie_preferences, false)
      |> assign(:movies, movies)
      |> assign(:movie_index, 0)
@@ -74,16 +79,9 @@ defmodule MovieMatchWeb.SessionLive.Match do
   end
 
   defp refresh_movies(socket) do
-    filters = %{
-      genres: socket.assigns.selected_genres,
-      runtime: socket.assigns.selected_runtime
-    }
+    filters = %{genres: socket.assigns.selected_genres}
 
-    movies =
-      Provider.discover(
-        socket.assigns.session.selected_services,
-        filters
-      )
+    movies = Provider.discover(socket.assigns.session.selected_services, filters)
 
     socket
     |> assign(:movies, movies)
