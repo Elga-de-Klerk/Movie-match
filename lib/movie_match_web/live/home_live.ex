@@ -30,7 +30,7 @@ defmodule MovieMatchWeb.HomeLive do
             </.link>
 
             <.link
-              navigate="/join"
+              navigate="/session/join"
               class="rounded-xl border border-slate-700 px-6 py-3 text-center font-semibold hover:bg-slate-900"
             >
               Join Session

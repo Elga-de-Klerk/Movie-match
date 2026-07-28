@@ -20,7 +20,7 @@ defmodule MovieMatchWeb.SessionLive.Create do
      |> assign(:name, "")}
   end
 
-  def handle_event("update_form", %{"name" => name}, socket) do
+  def handle_event("update_code", %{"name" => name}, socket) do
     {:noreply, assign(socket, :name, name)}
   end
 
