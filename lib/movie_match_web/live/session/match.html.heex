@@ -6,25 +6,41 @@
       selected_genres={@selected_genres}
       genre_mode={@genre_mode}
     />
-  <div
-    phx-click="toggle_description"
-    class="h-[38rem] cursor-pointer overflow-hidden rounded-2xl bg-slate-900 shadow-xl"
-  >
-    <%= if @show_description do %>
-      <.movie_information movie={@movie} />
-    <% else %>
-      <.movie_cover movie={@movie} />
-    <% end %>
-  </div>
 
-  <div class="mt-6 flex gap-4">
-    <.action_button variant="secondary" phx-click="vote" phx-value-vote="dislike" class="flex-1">
-      Dislike
-    </.action_button>
-    <.action_button phx-click="vote" phx-value-vote="like" class="flex-1">
-      Like
-    </.action_button>
-  </div>
+    <%= if @movie do %>
+      <div
+        phx-click="toggle_description"
+        class="h-[38rem] cursor-pointer overflow-hidden rounded-2xl bg-slate-900 shadow-xl"
+      >
+        <%= if @show_description do %>
+          <.movie_information movie={@movie} />
+        <% else %>
+          <.movie_cover movie={@movie} />
+        <% end %>
+      </div>
+    <% else %>
+        <div class="h-[38rem] cursor-pointer overflow-hidden rounded-2xl bg-slate-900 shadow-xl text-center content-center">
+            <div>
+                <.heading>No movies match your filters</.heading>
+                <.subtext class="mt-2">
+                Try selecting fewer genres, switching to "any" instead of "all" <br/>
+                or picking a different streaming service.
+                </.subtext>
+                <.action_button phx-click="clear_filters" class="mt-6">
+                Clear filters
+                </.action_button>
+            </div>
+        </div>
+    <% end %>
+
+    <div class="mt-6 flex gap-4">
+        <.action_button disabled={@movie == nil} variant="secondary" phx-click="vote" phx-value-vote="dislike" class="flex-1">
+          Dislike
+        </.action_button>
+        <.action_button disabled={@movie == nil} phx-click="vote" phx-value-vote="like" class="flex-1">
+          Like
+        </.action_button>
+    </div>
 
     <div class="hidden">
         <%= for movie <- Enum.slice(@movies, @movie_index + 1, 3) do %>

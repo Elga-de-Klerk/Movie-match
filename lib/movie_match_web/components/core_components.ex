@@ -400,7 +400,7 @@ defmodule MovieMatchWeb.CoreComponents do
       "bg-violet-600 text-white hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 disabled:hover:bg-slate-700"
 
   defp action_variant_class("secondary"),
-    do: "border border-slate-700 text-white hover:bg-slate-800"
+    do: "border border-slate-700 text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:text-slate-400 disabled:hover:bg-slate-950"
 
   attr :name, :string, required: true
   attr :value, :string, default: ""

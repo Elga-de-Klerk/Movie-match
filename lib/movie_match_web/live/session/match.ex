@@ -80,6 +80,14 @@ defmodule MovieMatchWeb.SessionLive.Match do
      update(socket, :show_description, fn value -> !value end)}
   end
 
+  def handle_event("clear_filters", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:selected_genres, [])
+     |> assign(:genre_mode, :or)
+     |> refresh_movies()}
+  end
+
   def handle_event("vote", %{"vote" => vote}, socket) do
     case vote do
       "like" -> handle_vote(:like, socket)
@@ -106,6 +114,7 @@ defmodule MovieMatchWeb.SessionLive.Match do
     |> assign(:movie, Enum.at(movies, 0) && Provider.enrich_with_runtime(Enum.at(movies, 0)))
     |> assign(:next_movie, Enum.at(movies, 1))
   end
+
   defp handle_vote(vote, socket) do
     socket =
       socket
