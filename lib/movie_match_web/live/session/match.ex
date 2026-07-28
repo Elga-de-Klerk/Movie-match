@@ -22,11 +22,9 @@ defmodule MovieMatchWeb.SessionLive.Match do
      socket
      |> assign(:session, session)
      |> assign(:movie_preferences, %{
-       genres: ["Comedy", "Action"],
-       runtime: "Under 2 hours"
+       genres: ["Comedy", "Action"]
      })
      |> assign(:selected_genres, [])
-     |> assign(:selected_runtime, "medium")
      |> assign(:show_movie_preferences, false)
      |> assign(:movies, movies)
      |> assign(:movie_index, 0)
@@ -50,13 +48,9 @@ defmodule MovieMatchWeb.SessionLive.Match do
         [genre | socket.assigns.selected_genres]
       end
 
-    {:noreply,
-     assign(socket, :selected_genres, selected)}
-  end
-
-  def handle_event("set_runtime", %{"runtime" => runtime}, socket) do
-    {:noreply,
-     assign(socket, :selected_runtime, runtime)}
+    {:noreply, socket
+      |> assign(:selected_genres, selected)
+      |> refresh_movies()}
   end
 
   def handle_event("toggle_description", _params, socket) do
@@ -77,6 +71,25 @@ defmodule MovieMatchWeb.SessionLive.Match do
 
   def handle_info({:match, movie}, socket) do
     {:noreply, assign(socket, :matched_movie, movie)}
+  end
+
+  defp refresh_movies(socket) do
+    filters = %{
+      genres: socket.assigns.selected_genres,
+      runtime: socket.assigns.selected_runtime
+    }
+
+    movies =
+      Provider.discover(
+        socket.assigns.session.selected_services,
+        filters
+      )
+
+    socket
+    |> assign(:movies, movies)
+    |> assign(:movie_index, 0)
+    |> assign(:movie, Enum.at(movies, 0) && Provider.enrich_with_runtime(Enum.at(movies, 0)))
+    |> assign(:next_movie, Enum.at(movies, 1))
   end
 
   defp handle_vote(vote, socket) do

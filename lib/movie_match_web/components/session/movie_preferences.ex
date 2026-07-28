@@ -3,8 +3,6 @@ defmodule MovieMatchWeb.Components.Session.MoviePreferences do
 
   attr :genres, :list, default: []
   attr :selected_genres, :list, default: []
-  attr :runtime, :string, default: nil
-  attr :selected_runtime, :string, default: nil
   attr :variant, :atom, default: :display, values: [:display, :filter]
   attr :expanded, :boolean, default: false
 
@@ -15,8 +13,6 @@ defmodule MovieMatchWeb.Components.Session.MoviePreferences do
         <.display_preferences
           genres={@genres}
           selected_genres={@selected_genres}
-          runtime={@runtime}
-          selected_runtime={@selected_runtime}
         />
 
       <% :filter -> %>
@@ -24,8 +20,6 @@ defmodule MovieMatchWeb.Components.Session.MoviePreferences do
           expanded={@expanded}
           genres={@genres}
           selected_genres={@selected_genres}
-          runtime={@runtime}
-          selected_runtime={@selected_runtime}
         />
     <% end %>
     """
@@ -43,15 +37,11 @@ defmodule MovieMatchWeb.Components.Session.MoviePreferences do
       </.subtext>
 
       <div class="mt-4 flex flex-wrap gap-2">
-         <.genre_filter
-              genres={@genres}
-              selected_genres={@selected_genres}
-            />
+        <.genre_filter
+          genres={@genres}
+          selected_genres={@selected_genres}
+        />
       </div>
-
-      <.runtime_filter
-            selected_runtime={@selected_runtime}
-          />
     </.panel>
     """
   end
@@ -91,17 +81,12 @@ defmodule MovieMatchWeb.Components.Session.MoviePreferences do
         class="absolute left-0 right-0 top-full z-50"
       >
         <div class="rounded-2xl bg-slate-950 p-6">
-        <div>
-          <.genre_filter
-                genres={@genres}
-                selected_genres={@selected_genres}
-              />
+          <div>
+            <.genre_filter
+              genres={@genres}
+              selected_genres={@selected_genres}
+            />
          </div>
-
-
-          <.runtime_filter
-                selected_runtime={@selected_runtime}
-              />
         </div>
       </div>
 
@@ -134,59 +119,6 @@ defmodule MovieMatchWeb.Components.Session.MoviePreferences do
           </button>
         </div>
       </div>
-    """
-  end
-
-
-  defp runtime_filter(assigns) do
-    ~H"""
-    <div class="mt-6">
-      <p class="font-semibold">
-        Runtime
-      </p>
-
-      <div class="mt-3 flex flex-col gap-2">
-
-        <label class="flex items-center gap-2">
-          <input
-            type="radio"
-            name="runtime"
-            value="any"
-            checked={@selected_runtime == "any"}
-            phx-click="set_runtime"
-            phx-value-runtime="any"
-          />
-          Any runtime
-        </label>
-
-
-        <label class="flex items-center gap-2">
-          <input
-            type="radio"
-            name="runtime"
-            value="short"
-            checked={@selected_runtime == "short"}
-            phx-click="set_runtime"
-            phx-value-runtime="short"
-          />
-          Under 90 minutes
-        </label>
-
-
-        <label class="flex items-center gap-2">
-          <input
-            type="radio"
-            name="runtime"
-            value="medium"
-            checked={@selected_runtime == "medium"}
-            phx-click="set_runtime"
-            phx-value-runtime="medium"
-          />
-          Under 120 minutes
-        </label>
-
-      </div>
-    </div>
     """
   end
 end
