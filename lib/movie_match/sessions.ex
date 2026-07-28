@@ -10,6 +10,10 @@ defmodule MovieMatch.Sessions do
     |> Repo.insert()
   end
 
+  def get_session_by_id(id) do
+      Repo.get_by(Session, id: id)
+  end
+
   def get_session_by_id!(id) do
     Repo.get_by!(Session, id: id)
   end

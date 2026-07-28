@@ -31,8 +31,14 @@
         />
       </div>
 
+      <%= if @error do %>
+        <p class="mt-2 text-sm text-red-400">
+          <%= @error %>
+        </p>
+      <% end %>
+
       <button
-        @disabled={@code == ""}
+        disabled={@code == ""}
         type="submit"
         class={[
             "mt-2 w-full rounded-xl px-6 py-3 font-semibold transition",
