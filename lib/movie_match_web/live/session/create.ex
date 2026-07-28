@@ -61,7 +61,7 @@ defmodule MovieMatchWeb.SessionLive.Create do
 
   defp generate_session_id do
     :crypto.strong_rand_bytes(6)
-    |> Base.encode32(case: :lower)
+    |> Base.encode32(case: :upper)
     |> binary_part(0, 6)
   end
 end

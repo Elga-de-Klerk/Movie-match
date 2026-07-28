@@ -23,7 +23,7 @@ defmodule MovieMatchWeb.SessionLive.Join do
       |> String.trim()
       |> String.upcase()
 
-    IO.inspect(Sessions.get_session_by_id(code), label: "FOUND SESSION")
+    IO.inspect(code, label: "Code")
 
     case Sessions.get_session_by_id(code) do
       nil ->
