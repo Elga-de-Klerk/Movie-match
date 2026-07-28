@@ -1,5 +1,5 @@
 defmodule MovieMatchWeb.Components.Session.MoviePreferences do
-  use MovieMatchWeb, :html
+  use MovieMatchWeb, :component
 
   attr :genres, :list, default: []
   attr :selected_genres, :list, default: []
@@ -10,11 +10,7 @@ defmodule MovieMatchWeb.Components.Session.MoviePreferences do
     ~H"""
     <%= case @variant do %>
       <% :display -> %>
-        <.display_preferences
-          genres={@genres}
-          selected_genres={@selected_genres}
-        />
-
+        <.display_preferences genres={@genres} selected_genres={@selected_genres} />
       <% :filter -> %>
         <.filter_preferences
           expanded={@expanded}
@@ -25,71 +21,42 @@ defmodule MovieMatchWeb.Components.Session.MoviePreferences do
     """
   end
 
-
   defp display_preferences(assigns) do
     ~H"""
     <.panel>
-      <.heading>
-        Movie preferences
-      </.heading>
+      <.heading>Movie preferences</.heading>
       <.subtext class="mt-2">
         Adjust what kind of movies you're in the mood for
       </.subtext>
 
-      <div class="mt-4 flex flex-wrap gap-2">
-        <.genre_filter
-          genres={@genres}
-          selected_genres={@selected_genres}
-        />
+      <div class="mt-4">
+        <.genre_filter genres={@genres} selected_genres={@selected_genres} />
       </div>
     </.panel>
     """
   end
 
-
   defp filter_preferences(assigns) do
     ~H"""
     <div class="relative">
-
       <button
         type="button"
         phx-click="toggle_movie_preferences"
         class="flex w-full items-center justify-between"
       >
-        <div class="flex items-center gap-3">
-          <div class="text-left">
-            <p class="font-semibold">
-              Movie preferences
-            </p>
-
-            <p class="text-sm text-slate-400">
-              Adjust what kind of movies you're in the mood for
-            </p>
-          </div>
+        <div class="text-left">
+          <p class="font-semibold">Movie preferences</p>
+          <.subtext>Adjust what kind of movies you're in the mood for</.subtext>
         </div>
 
-        <.icon
-          name={if @expanded,
-            do: "hero-chevron-up",
-            else: "hero-chevron-down"}
-        />
+        <.icon name={if @expanded, do: "hero-chevron-up", else: "hero-chevron-down"} />
       </button>
 
-
-      <div
-        :if={@expanded}
-        class="absolute left-0 right-0 top-full z-50"
-      >
-        <div class="rounded-2xl bg-slate-950 p-6">
-          <div>
-            <.genre_filter
-              genres={@genres}
-              selected_genres={@selected_genres}
-            />
-         </div>
-        </div>
+      <div :if={@expanded} class="absolute left-0 right-0 top-full z-50">
+        <.panel class="bg-slate-950">
+          <.genre_filter genres={@genres} selected_genres={@selected_genres} />
+        </.panel>
       </div>
-
     </div>
     """
   end
@@ -97,28 +64,24 @@ defmodule MovieMatchWeb.Components.Session.MoviePreferences do
   defp genre_filter(assigns) do
     ~H"""
     <div>
-        <p class="font-semibold">
-          Genres
-        </p>
+      <p class="font-semibold">Genres</p>
 
-        <div class="mt-3 flex flex-wrap gap-2">
-          <button
-            :for={genre <- @genres}
-            type="button"
-            phx-click="toggle_genre"
-            phx-value-genre={genre}
-            class={[
-              "badge",
-              genre in @selected_genres &&
-                "bg-violet-600 text-white border-violet-600",
-              genre not in @selected_genres &&
-                "badge-neutral"
-            ]}
-          >
-            <%= genre %>
-          </button>
-        </div>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <button
+          :for={genre <- @genres}
+          type="button"
+          phx-click="toggle_genre"
+          phx-value-genre={genre}
+          class={[
+            "rounded-xl border-2 px-4 py-2 text-sm font-semibold transition",
+            genre in @selected_genres && "border-violet-500 bg-violet-500/10 text-white",
+            genre not in @selected_genres && "border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-600"
+          ]}
+        >
+          <%= genre %>
+        </button>
       </div>
+    </div>
     """
   end
 end
