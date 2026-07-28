@@ -25,6 +25,12 @@ defmodule MovieMatch.Movies.Provider do
     |> Enum.reject(&is_nil/1)
   end
 
+  def available_genres do
+    Cache.genres()
+    |> Map.values()
+    |> Enum.sort()
+  end
+
   def enrich_with_runtime(%Movie{id: id} = movie) do
       %{movie | runtime: Cache.movie_details(id)["runtime"]}
   end

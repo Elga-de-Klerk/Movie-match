@@ -19,9 +19,7 @@ defmodule MovieMatchWeb.SessionLive.Lobby do
     {:ok,
      socket
      |> assign(:session, session)
-     |> assign(:movie_preferences, %{
-       genres: ["Comedy", "Action"]
-     })
+     |> assign(:movie_preferences, %{genres: socket.assigns.available_genres})
      |> assign(:selected_genres, [])
      |> assign_new(:name, fn ->
        if socket.assigns[:participant] do

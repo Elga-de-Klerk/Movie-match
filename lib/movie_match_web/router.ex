@@ -22,8 +22,10 @@ defmodule MovieMatchWeb.Router do
     live "/session/join", SessionLive.Join
 
     live_session :session_context,
-      on_mount: {MovieMatchWeb.Live.Hooks.SessionContext, :session_context} do
-
+      on_mount: [
+        {MovieMatchWeb.Live.Hooks.SessionContext, :session_context},
+        {MovieMatchWeb.Live.Hooks.AvailableGenres, :available_genres}
+      ] do
       live "/session/:id", SessionLive.Lobby
       live "/session/:id/match", SessionLive.Match
     end

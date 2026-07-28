@@ -28,7 +28,7 @@ defmodule MovieMatchWeb.SessionLive.Match do
     {:ok,
      socket
      |> assign(:session, session)
-     |> assign(:movie_preferences, %{genres: ["Comedy", "Action"]})
+     |> assign(:movie_preferences, %{genres: socket.assigns.available_genres})
      |> assign(:selected_genres, initial_genres)
      |> assign(:show_movie_preferences, false)
      |> assign(:movies, movies)
