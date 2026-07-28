@@ -40,12 +40,12 @@ defmodule MovieMatchWeb.SessionLive.Match do
     end
   end
 
-  def handle_info({:match, movie}, socket) do
-    {:noreply, assign(socket, :matched_movie, movie)}
-  end
-
   def handle_event("dismiss_match", _params, socket) do
     {:noreply, assign(socket, :matched_movie, nil)}
+  end
+
+  def handle_info({:match, movie}, socket) do
+    {:noreply, assign(socket, :matched_movie, movie)}
   end
 
   defp handle_vote(vote, socket) do
